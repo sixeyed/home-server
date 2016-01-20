@@ -1,0 +1,64 @@
+lms:
+ container_name: lms
+ hostname: lms
+ image: sixeyed/logitech-media-server
+ volumes:
+  - /audio:/mnt/audio
+  - /vms/docker/lms:/mnt/state
+ ports:
+  - "9000:9000"
+  - "3483:3483"
+  - "3483:3483/udp"
+  - "9090:9090"
+ mem_limit: 1g
+ restart: always
+
+samba:
+ container_name: samba
+ hostname: samba
+ image: sixeyed/samba
+ volumes:
+  - /audio:/mnt/audio
+  - /vms:/mnt/vms
+  - /visual:/mnt/visual
+  - /downloads:/mnt/downloads
+  - /psod:/mnt/psod
+  - /users:/mnt/users
+ ports:
+  - "139:139"
+  - "445:445"
+  - "137:137/udp"
+  - "138:138/udp"
+ command: samba.sh -s "audio;/mnt/audio;yes;no;yes;all" -s "vms;/mnt/vms;yes;no;yes;all" -s "visual;/mnt/visual;yes;no;yes;all" -s "downloads;/mnt/downloads/Downloads;yes;no;yes;all" -s "psod;/mnt/psod;yes;no;yes;all" -s "users;/mnt/users;yes;no;yes;all"
+ mem_limit: 1g
+ restart: always
+
+unifi:
+ container_name: unifi
+ image: jacobalberty/unifi
+ volumes:
+  - /vms/docker/unifi/lib:/var/lib/unifi
+  - /vms/docker/unifi/log:/var/log/unifi
+  - /vms/docker/unifi/run:/var/run/unifi
+ net: "host"
+ mem_limit: 1g
+ restart: always
+
+unifi-video:
+ container_name: unifi-video
+ image: pducharme/unifi-video-controller
+ volumes:
+  - /vms/docker/unifi-video/data:/var/lib/unifi-video
+  - /vms/docker/unifi-video/log:/var/log/unifi-video
+ ports:
+  - "1935:1935"
+  - "7443:7443"
+  - "7080:7080"
+  - "6666:6666"
+  - "554:554"
+  - "7447:7447"
+  - "9080:80"
+  - "9443:443"
+ privileged: true
+ mem_limit: 2g
+ restart: always
